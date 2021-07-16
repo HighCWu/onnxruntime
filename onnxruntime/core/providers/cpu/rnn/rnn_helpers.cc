@@ -17,6 +17,8 @@
 #include "core/util/math.h"
 #include "core/util/math_cpuonly.h"
 
+#include "core/mlas/inc/mlas.h"
+
 namespace onnxruntime {
 namespace rnn {
 namespace detail {
@@ -507,46 +509,50 @@ void sigmoid(float* pd, int c, float alpha, float beta) {
   ORT_UNUSED_PARAMETER(alpha);
   ORT_UNUSED_PARAMETER(beta);
 
-  clip_for_sigmoid_in_place(pd, c);
+  MlasComputeLogistic(pd, pd, c);
 
-  for (int i = 0; i < c; i++) {
-    float x = 0.5f * pd[i];
-    float x2 = x * x;
-    float p = x2 * alpha_13 + alpha_11;
-    p = x2 * p + alpha_9;
-    p = x2 * p + alpha_7;
-    p = x2 * p + alpha_5;
-    p = x2 * p + alpha_3;
-    p = x2 * p + alpha_1;
-    p = x * p;
-    float q = x2 * beta_6 + beta_4;
-    q = x2 * q + beta_2;
-    q = x2 * q + beta_0;
-    pd[i] = 0.5f * (1 + (p / q));
-  }
+  // clip_for_sigmoid_in_place(pd, c);
+
+  // for (int i = 0; i < c; i++) {
+  //   float x = 0.5f * pd[i];
+  //   float x2 = x * x;
+  //   float p = x2 * alpha_13 + alpha_11;
+  //   p = x2 * p + alpha_9;
+  //   p = x2 * p + alpha_7;
+  //   p = x2 * p + alpha_5;
+  //   p = x2 * p + alpha_3;
+  //   p = x2 * p + alpha_1;
+  //   p = x * p;
+  //   float q = x2 * beta_6 + beta_4;
+  //   q = x2 * q + beta_2;
+  //   q = x2 * q + beta_0;
+  //   pd[i] = 0.5f * (1 + (p / q));
+  // }
 }
 
 void tanh(float* pd, int c, float alpha, float beta) {
   ORT_UNUSED_PARAMETER(alpha);
   ORT_UNUSED_PARAMETER(beta);
 
-  clip_for_tanh_in_place(pd, c);
+  MlasComputeTanh(pd, pd, c);
 
-  for (int i = 0; i < c; i++) {
-    float x = pd[i];
-    float x2 = x * x;
-    float p = x2 * alpha_13 + alpha_11;
-    p = x2 * p + alpha_9;
-    p = x2 * p + alpha_7;
-    p = x2 * p + alpha_5;
-    p = x2 * p + alpha_3;
-    p = x2 * p + alpha_1;
-    p = x * p;
-    float q = x2 * beta_6 + beta_4;
-    q = x2 * q + beta_2;
-    q = x2 * q + beta_0;
-    pd[i] = p / q;
-  }
+  // clip_for_tanh_in_place(pd, c);
+
+  // for (int i = 0; i < c; i++) {
+  //   float x = pd[i];
+  //   float x2 = x * x;
+  //   float p = x2 * alpha_13 + alpha_11;
+  //   p = x2 * p + alpha_9;
+  //   p = x2 * p + alpha_7;
+  //   p = x2 * p + alpha_5;
+  //   p = x2 * p + alpha_3;
+  //   p = x2 * p + alpha_1;
+  //   p = x * p;
+  //   float q = x2 * beta_6 + beta_4;
+  //   q = x2 * q + beta_2;
+  //   q = x2 * q + beta_0;
+  //   pd[i] = p / q;
+  // }
 }
 
 void relu(float* pd, int c, float alpha, float beta) {

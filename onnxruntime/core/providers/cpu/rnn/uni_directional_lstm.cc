@@ -536,15 +536,13 @@ void UniDirectionalLstm<T>::GateComputations(
     // DumpMatrix("H" + row_str, pH, 1, hidden_size_);
   }
 
-  auto num_rows = local_fused_hidden_rows - row;
-  std::string rows_str = " rows[" + std::to_string(row) + ".." + std::to_string(num_rows) + "]";
-
-  DumpMatrix("i" + rows_str, &*out, num_rows, hidden_size_, 0, hidden_size_x4);
-  DumpMatrix("o" + rows_str, &*out, num_rows, hidden_size_, 1 * hidden_size_, hidden_size_x4);
-  DumpMatrix("f" + rows_str, &*out, num_rows, hidden_size_, 2 * hidden_size_, hidden_size_x4);
-  DumpMatrix("c" + rows_str, &*out, num_rows, hidden_size_, 3 * hidden_size_, hidden_size_x4);
-  DumpMatrix("C" + rows_str, &*C_prev, num_rows, hidden_size_);  // Ct overwrites the input C_prev value
-  DumpMatrix("H" + rows_str, &*batched_output, num_rows, hidden_size_);
+  #define rows_str " rows[" + std::to_string(row) + ".." + std::to_string(local_fused_hidden_rows - row) + "]"
+  DumpMatrix("i" + rows_str, &*out, local_fused_hidden_rows - row, hidden_size_, 0, hidden_size_x4);
+  DumpMatrix("o" + rows_str, &*out, local_fused_hidden_rows - row, hidden_size_, 1 * hidden_size_, hidden_size_x4);
+  DumpMatrix("f" + rows_str, &*out, local_fused_hidden_rows - row, hidden_size_, 2 * hidden_size_, hidden_size_x4);
+  DumpMatrix("c" + rows_str, &*out, local_fused_hidden_rows - row, hidden_size_, 3 * hidden_size_, hidden_size_x4);
+  DumpMatrix("C" + rows_str, &*C_prev, local_fused_hidden_rows - row, hidden_size_);  // Ct overwrites the input C_prev value
+  DumpMatrix("H" + rows_str, &*batched_output, local_fused_hidden_rows - row, hidden_size_);
 }
 
 template <typename T>
