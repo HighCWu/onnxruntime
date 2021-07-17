@@ -45,7 +45,7 @@ jobs:
   - task: CmdLine@2
     inputs:
       script: |
-        rm -rf $(Build.BinariesDirectory)/Release/onnxruntime $(Build.BinariesDirectory)/Release/pybind11
+        rm -rf $(Build.BinariesDirectory)/Release/onnxruntime $(Build.BinariesDirectory)/Release/pybind11 $(Build.BinariesDirectory)/Release/_deps
         rm -f $(Build.BinariesDirectory)/Release/models
         cd $(Build.BinariesDirectory)/Release
         find -executable -type f > $(Build.BinariesDirectory)/Release/perms.txt

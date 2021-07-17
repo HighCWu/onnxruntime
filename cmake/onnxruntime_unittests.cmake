@@ -429,7 +429,7 @@ endif()
 if(onnxruntime_USE_FEATURIZERS)
    list(APPEND onnxruntime_test_providers_dependencies onnxruntime_featurizers)
    list(APPEND onnxruntime_test_providers_libs onnxruntime_featurizers re2)
-   list(APPEND TEST_INC_DIR ${RE2_INCLUDE_DIR})
+   list(APPEND TEST_INC_DIR re2::re2)
 endif()
 
 if(onnxruntime_USE_DML)
@@ -595,7 +595,7 @@ onnxruntime_add_include_to_target(onnx_test_runner_common onnxruntime_common onn
         onnxruntime_test_utils onnx onnx_proto re2::re2 flatbuffers)
 
 add_dependencies(onnx_test_runner_common onnx_test_data_proto ${onnxruntime_EXTERNAL_DEPENDENCIES})
-target_include_directories(onnx_test_runner_common PRIVATE ${eigen_INCLUDE_DIRS} ${RE2_INCLUDE_DIR}
+target_include_directories(onnx_test_runner_common PRIVATE ${eigen_INCLUDE_DIRS}
         ${CMAKE_CURRENT_BINARY_DIR} ${ONNXRUNTIME_ROOT})
 
 set_target_properties(onnx_test_runner_common PROPERTIES FOLDER "ONNXRuntimeTest")

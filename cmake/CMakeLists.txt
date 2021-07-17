@@ -790,23 +790,24 @@ get_filename_component(ORTTRAINING_ROOT "${ORTTRAINING_ROOT}" ABSOLUTE)
 get_filename_component(REPO_ROOT "${REPO_ROOT}" ABSOLUTE)
 set(ONNXRUNTIME_INCLUDE_DIR ${REPO_ROOT}/include/onnxruntime)
 
-if(onnxruntime_USE_SUBMODULE)
-    add_subdirectory(external/date EXCLUDE_FROM_ALL)
-else()
-    FetchContent_Declare(
-      date
-      GIT_REPOSITORY https://github.com/HowardHinnant/date.git
-      GIT_TAG        e7e1482087f58913b80a20b04d5c58d9d6d90155
-    )
-    FetchContent_MakeAvailable(date)
+if(NOT onnxruntime_DISABLE_EXCEPTIONS)
+    #This library requires C++ exception
+	if(onnxruntime_USE_SUBMODULE)
+		add_subdirectory(external/date EXCLUDE_FROM_ALL)
+	else()
+		FetchContent_Declare(
+		  date
+		  GIT_REPOSITORY https://github.com/HowardHinnant/date.git
+		  GIT_TAG        e7e1482087f58913b80a20b04d5c58d9d6d90155
+		)
+		FetchContent_MakeAvailable(date)
+	endif()
 endif()
 
 
-
-set(SAFEINT_INCLUDE_DIR ${REPO_ROOT}/cmake/external/SafeInt/safeint)
 if(onnxruntime_USE_SUBMODULE)
     add_library(safeint_interface INTERFACE)
-    target_include_directories(safeint_interface INTERFACE ${SAFEINT_INCLUDE_DIR})
+    target_include_directories(safeint_interface INTERFACE ${REPO_ROOT}/cmake/external/SafeInt)
 else()
     FetchContent_Declare(
       safeint
@@ -1358,7 +1359,7 @@ if (onnxruntime_ENABLE_EXTENSION_CUSTOM_OPS)
   set(OCOS_ENABLE_SPM_TOKENIZER OFF CACHE INTERNAL "")
   add_subdirectory(external/onnxruntime-extensions EXCLUDE_FROM_ALL)
   # target library or executable are defined in CMakeLists.txt of onnxruntime-extensions
-  target_include_directories(ocos_operators PRIVATE ${RE2_INCLUDE_DIR} external/json/include)
+  target_include_directories(ocos_operators PRIVATE re2::re2 ${json_SOURCE_DIR}/include)
   target_include_directories(ortcustomops PUBLIC external/onnxruntime-extensions/shared)
 endif()
 
