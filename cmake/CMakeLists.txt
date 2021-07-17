@@ -1226,8 +1226,10 @@ endfunction()
 
 function(onnxruntime_add_include_to_target dst_target)
     foreach(src_target ${ARGN})
+	  if(TARGET ${ARGN})
         target_include_directories(${dst_target} PRIVATE $<TARGET_PROPERTY:${src_target},INTERFACE_INCLUDE_DIRECTORIES>)
         target_compile_definitions(${dst_target} PRIVATE $<TARGET_PROPERTY:${src_target},INTERFACE_COMPILE_DEFINITIONS>)
+	  endif()
     endforeach()
 endfunction()
 

@@ -8,7 +8,7 @@
     <SignAssembly>false</SignAssembly>
     <Configurations>Debug;Release;RelWithDebInfo</Configurations>
     <IsLinuxBuild Condition="'$(IsLinuxBuild)' == ''">false</IsLinuxBuild>
-    <ProtoSrc>$(OnnxRuntimeCsharpRoot)\..\cmake\external\onnx\onnx</ProtoSrc>
+    <ProtoSrc>$(OnnxSourceDirectory)\onnx</ProtoSrc>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsLinuxBuild)'=='true'">
