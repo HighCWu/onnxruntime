@@ -5,7 +5,7 @@
 
 #include <optional>
 
-#include "safeint/SafeInt.hpp"
+#include "SafeInt.hpp"
 
 #include "onnxruntime_cxx_api.h"
 
