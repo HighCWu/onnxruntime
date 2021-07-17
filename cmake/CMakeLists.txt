@@ -670,6 +670,7 @@ if(onnxruntime_BUILD_SHARED_LIB OR onnxruntime_ENABLE_PYTHON)
 endif()
 
 #target begins from here
+# External dependencies
 
 if(onnxruntime_BUILD_BENCHMARKS)
   if(onnxruntime_PREFER_SYSTEM_LIB)
@@ -687,9 +688,19 @@ if(onnxruntime_BUILD_BENCHMARKS)
 endif()
 
 if(NOT WIN32 AND NOT onnxruntime_PREFER_SYSTEM_LIB)
-  add_subdirectory(${PROJECT_SOURCE_DIR}/external/nsync EXCLUDE_FROM_ALL)
+  if(onnxruntime_USE_SUBMODULE)
+    set(nsync_SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/nsync)
+    add_subdirectory(${nsync_SOURCE_DIR} EXCLUDE_FROM_ALL)	
+  else()
+    FetchContent_Declare(
+      nsync
+      GIT_REPOSITORY https://github.com/google/nsync.git
+      GIT_TAG        436617053d0f39a1019a371c3a9aa599b3cb2cea
+      SOURCE_SUBDIR  nsync
+    )
+    FetchContent_MakeAvailable(nsync)
+  endif()
 endif()
-# External dependencies
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/external)
 
 #protobuf begin
@@ -932,7 +943,7 @@ include(eigen)
 #onnxruntime_EXTERNAL_LIBRARIES could contain onnx, onnx_proto,libprotobuf, cuda/cudnn,
 # dnnl/mklml, onnxruntime_codegen_tvm, tvm, nnvm_compiler and pthread
 # pthread is always at the last
-set(onnxruntime_EXTERNAL_LIBRARIES onnx onnx_proto ${PROTOBUF_LIB} re2::re2)
+set(onnxruntime_EXTERNAL_LIBRARIES onnx onnx_proto ${PROTOBUF_LIB} re2::re2 Boost::mp11)
 
 
 set(onnxruntime_LINK_DIRS )
@@ -1154,7 +1165,7 @@ function(onnxruntime_set_compile_flags target_name)
       if(APPLE AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "iOSCross" AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "iOS")
         target_compile_definitions(${target_name} PUBLIC -Doptional_CONFIG_SELECT_OPTIONAL=optional_OPTIONAL_NONSTD)
       endif()
-      target_include_directories(${target_name} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/external/nsync/public")
+      target_include_directories(${target_name} PRIVATE ${nsync_SOURCE_DIR}/public)
     endif()
     foreach(ORT_FLAG ${ORT_PROVIDER_FLAGS})
       target_compile_definitions(${target_name} PRIVATE ${ORT_FLAG})

@@ -401,13 +401,9 @@ target_include_directories(winml_lib_image PRIVATE ${winml_lib_api_image_dir})
 target_include_directories(winml_lib_image PRIVATE ${winml_lib_common_dir}/inc)
 target_include_directories(winml_lib_image PRIVATE ${ONNXRUNTIME_ROOT})
 target_include_directories(winml_lib_image PRIVATE ${ONNXRUNTIME_INCLUDE_DIR})                                                        # for status.h
-target_include_directories(winml_lib_image PRIVATE ${REPO_ROOT}/cmake/external/gsl/include)
-target_include_directories(winml_lib_image PRIVATE ${REPO_ROOT}/cmake/external/onnx)
-target_include_directories(winml_lib_image PRIVATE ${REPO_ROOT}/cmake/external/protobuf/src)
+onnxruntime_add_include_to_target(winml_lib_image onnx onnx_proto ${PROTOBUF_LIB} re2::re2 flatbuffers Boost::mp11)
 target_include_directories(winml_lib_image PRIVATE ${ONNXRUNTIME_INCLUDE_DIR}/core/platform/windows)
-target_include_directories(winml_lib_image PRIVATE ${REPO_ROOT}/cmake/external/flatbuffers/include)
-target_include_directories(winml_lib_image PRIVATE ${REPO_ROOT}/cmake/external/optional-lite/include)
-target_include_directories(winml_lib_image PRIVATE ${REPO_ROOT}/cmake/external/mp11/include)
+target_include_directories(winml_lib_image PRIVATE ${OPTIONAL_LITE_INCLUDE_DIR})
 
 # Properties
 set_target_properties(winml_lib_image
