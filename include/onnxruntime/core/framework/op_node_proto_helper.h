@@ -80,6 +80,19 @@ class OpNodeProtoHelper {
   template <typename T>
   MUST_USE_RESULT Status GetAttrs(const std::string& name, std::vector<T>& values) const;
 
+  
+  MUST_USE_RESULT Status GetAttrs(const std::string& name, TensorShape& shape) const {
+    if constexpr (sizeof(size_t) = 4) {
+      std::vector<int64_t> s;
+      ORT_RETURN_IF_ERROR(GetAttrs<int64_t>(name, s));
+      shape = TensorShape(s.data(), s.size());
+    } else {
+      static_assert(sizeof(TensorShape) == sizeof(std::vector<int64_t>), "Size of TensorShape prevents safe casting from vector");
+      std::vector<int64_t>& s = *static_cast<std::vector<int64_t>*>(shape);
+      return GetAttrs<int64_t>(name, shape);
+    }
+  }
+
   template <typename T>
   MUST_USE_RESULT Status GetAttrs(const std::string& name, gsl::span<T> values) const;
 

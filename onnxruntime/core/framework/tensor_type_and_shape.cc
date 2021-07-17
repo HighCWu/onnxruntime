@@ -44,7 +44,18 @@ ORT_API_STATUS_IMPL(OrtApis::SetTensorElementType, _Inout_ OrtTensorTypeAndShape
 
 ORT_API_STATUS_IMPL(OrtApis::SetDimensions, OrtTensorTypeAndShapeInfo* this_ptr, _In_ const int64_t* dim_values, size_t dim_count) {
   API_IMPL_BEGIN
+#if !defined(__amd64__) && !defined(_M_AMD64) && !defined(__aarch64__)
+  std::vector<std::ptrdiff_t> v;
+  for (size_t i = 0; i != dim_count; ++i) {
+    if (dim_values[i] > std::numeric_limits<std::ptrdiff_t>::max()) {
+      return OrtApis::CreateStatus(ORT_FAIL, "input value out of range");
+    }
+    v[i] = static_cast<std::ptrdiff_t>(dim_values[i]);
+  }
+  this_ptr->shape = std::move(v);
+#else
   this_ptr->shape = onnxruntime::TensorShape(dim_values, dim_count);
+#endif
   return nullptr;
   API_IMPL_END
 }
@@ -155,11 +166,7 @@ OrtStatus* GetTensorShapeAndTypeHelper(ONNXTensorElementDataType type, const onn
     return status;
   }
 
-  auto* status = OrtApis::SetDimensions(ret, shape.GetDims().data(), shape.GetDims().size());
-  if (status != nullptr) {
-    OrtApis::ReleaseTensorTypeAndShapeInfo(ret);
-    return status;
-  }
+  ret->shape = shape;
 
   if (dim_params != nullptr) {
     ret->dim_params = *dim_params;

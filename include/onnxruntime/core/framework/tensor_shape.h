@@ -16,7 +16,7 @@ namespace onnxruntime {
 #pragma GCC diagnostic ignored "-Wnull-dereference"
 #endif
 #endif
-class TensorShape : private std::vector<int64_t> {
+class TensorShape : private std::vector<std::ptrdiff_t> {
   // TODO - Use a custom STL allocator to avoid heap allocations in the common case.
   // We use negative numbers for unknown symbolic dimension. Each negative
   // number represents a unique symbolic dimension.
@@ -30,30 +30,37 @@ class TensorShape : private std::vector<int64_t> {
   TensorShape(TensorShape&& /*other*/) = default;
   TensorShape& operator=(TensorShape&& /*other*/) = default;
 
-  TensorShape(const std::vector<int64_t>& dims) : std::vector<int64_t>(dims) {}
+  template <typename T>
+  TensorShape(const std::vector<T>& dims) : std::vector<ptrdiff_t>(dims) {}
 
-  TensorShape(std::vector<int64_t>&& dims) : std::vector<int64_t>(std::move(dims)) {}
+  template <typename T>
+  TensorShape(std::vector<T>&& dims) : std::vector<ptrdiff_t>(std::move(dims)) {}
 
-  TensorShape(const std::initializer_list<int64_t>& dims) : std::vector<int64_t>(dims) {}
+  TensorShape(const std::initializer_list<ptrdiff_t>& dims) : std::vector<ptrdiff_t>(dims) {}
 
-  TensorShape(const int64_t* dimension_sizes, size_t dimension_count);
+  template <typename T>
+  TensorShape(const T* dimension_sizes, size_t dimension_count) {
+    for (size_t i = 0; i < dimension_count; ++i) {
+      (*this)[i] = static_cast<ptrdiff_t>(dimension_sizes[i]);
+    }
+  }
 
-  TensorShape(const std::vector<int64_t>& dims, size_t start, size_t end);
+  TensorShape(const std::vector<ptrdiff_t>& dims, size_t start, size_t end);
 
   /**
      Return the dimension specified by <idx>.
   */
-  const int64_t& operator[](size_t idx) const {
-    return std::vector<int64_t>::operator[](static_cast<int>(idx));
+  const ptrdiff_t& operator[](size_t idx) const {
+    return std::vector<ptrdiff_t>::operator[](static_cast<int>(idx));
   }
 
-  int64_t& operator[](size_t idx) {
-    return std::vector<int64_t>::operator[](static_cast<int>(idx));
+  ptrdiff_t& operator[](size_t idx) {
+    return std::vector<ptrdiff_t>::operator[](static_cast<int>(idx));
   }
 
   bool operator==(const TensorShape& other) const noexcept {
-    auto thisVector = static_cast<const std::vector<int64_t>*>(this);
-    auto otherVector = static_cast<const std::vector<int64_t>*>(&other);
+    auto thisVector = static_cast<const std::vector<ptrdiff_t>*>(this);
+    auto otherVector = static_cast<const std::vector<ptrdiff_t>*>(&other);
     return *thisVector == *otherVector;
   }
 
@@ -75,7 +82,7 @@ class TensorShape : private std::vector<int64_t> {
   /**
      Return underlying vector representation.
   */
-  const std::vector<int64_t>& GetDims() const { return *this; }
+  const std::vector<ptrdiff_t>& GetDims() const { return *this; }
 
   /**
    * Return the total number of elements. Returns 1 for an empty (rank 0) TensorShape.
@@ -119,7 +126,7 @@ class TensorShape : private std::vector<int64_t> {
      Assumes start and end are between 0 and this->NumDimensions(), inclusive, and that
      start < end.
   */
-  int64_t SizeHelper(size_t start, size_t end) const;
+  ptrdiff_t SizeHelper(size_t start, size_t end) const;
 
   /**
      empty shape or 1D shape (1) is regarded as scalar tensor
@@ -129,8 +136,8 @@ class TensorShape : private std::vector<int64_t> {
     return len == 0 || (len == 1 && operator[](0) == 1);
   }
 
-  static const TensorShape& ReinterpretBaseType(const std::vector<int64_t>& dimensions) {
-    static_assert(sizeof(TensorShape) == sizeof(std::vector<int64_t>), "Size of TensorShape prevents safe casting from vector");
+  static const TensorShape& ReinterpretBaseType(const std::vector<ptrdiff_t>& dimensions) {
+    static_assert(sizeof(TensorShape) == sizeof(std::vector<ptrdiff_t>), "Size of TensorShape prevents safe casting from vector");
     return *static_cast<const TensorShape*>(&dimensions);
   }
 };

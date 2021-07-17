@@ -10,15 +10,15 @@
 #include "core/common/safeint.h"
 namespace onnxruntime {
 
-struct TensorPitches : std::vector<int64_t> {
+struct TensorPitches : std::vector<ptrdiff_t> {
   TensorPitches(const Tensor& tensor, size_t rank = 0) : TensorPitches(tensor.Shape(), rank) {}
   TensorPitches(const TensorShape& shape, size_t rank = 0) : TensorPitches(shape.GetDims(), rank) {}
-  TensorPitches(const std::vector<int64_t>& dims, size_t rank = 0)
-      : std::vector<int64_t>(std::max(rank, dims.size()), 0) {
-    Calculate(gsl::span<int64_t>(data(), size()), dims);
+  TensorPitches(const std::vector<std::ptrdiff_t>& dims, size_t rank = 0)
+      : std::vector<ptrdiff_t>(std::max(rank, dims.size()), 0) {
+    Calculate(gsl::span<ptrdiff_t>(data(), size()), dims);
   }
 
-  static bool Calculate(gsl::span<int64_t> p, const std::vector<int64_t>& dims) {
+  static bool Calculate(gsl::span<ptrdiff_t> p, const std::vector<ptrdiff_t>& dims) {
     // The pitches is the size of the next inner axis. Aka the amount to move by one of the next inner axis.
     // For a tensor with shape(2,3,4,5) the values would be: (3*4*5, 4*5, 5, 1)
     // Note that the outermost '2' is never used, as you never need to move by the entire size of the outermost axis
@@ -90,11 +90,11 @@ struct TensorAxisCounters {
   const Tensor& tensor_;
   bool running_{true};
   size_t axis_;
-  std::vector<int64_t> indices_;  // There is no index for innermost axis since it's a special case
+  std::vector<ptrdiff_t> indices_;  // There is no index for innermost axis since it's a special case
 };
 
 struct ExtentAxisCounters {
-  ExtentAxisCounters(gsl::span<const int64_t> extents) : extents_(extents) {
+  ExtentAxisCounters(gsl::span<const ptrdiff_t> extents) : extents_(extents) {
     indices_.resize(extents_.size() - 1, 0);
     axis_ = indices_.size();
 
@@ -125,16 +125,16 @@ struct ExtentAxisCounters {
  private:
   bool running_{true};
   size_t axis_;
-  std::vector<int64_t> indices_;      // There is no index for innermost axis since it's a special case
-  gsl::span<const int64_t> extents_;  // The extents of each axis
+  std::vector<ptrdiff_t> indices_;    // There is no index for innermost axis since it's a special case
+  gsl::span<const ptrdiff_t> extents_;  // The extents of each axis
 };
 
 // A std::vector that holds the number of entries to skip to go to the next axis start given an extent
 // and optionally steps along each axis:
 // This is used by the SliceIterator to iterate over a slice of a tensor
-struct SliceSkips : std::vector<int64_t> {
-  SliceSkips(const TensorShape& input_shape, gsl::span<const int64_t> extents, gsl::span<const int64_t> steps)
-      : std::vector<int64_t>(input_shape.NumDimensions(), 0) {
+struct SliceSkips : std::vector<ptrdiff_t> {
+  SliceSkips(const TensorShape& input_shape, gsl::span<const ptrdiff_t> extents, gsl::span<const ptrdiff_t> steps)
+      : std::vector<ptrdiff_t>(input_shape.NumDimensions(), 0) {
     auto& dims = input_shape.GetDims();
     ORT_ENFORCE(dims.size() == extents.size() &&
                 dims.size() >= steps.size());
@@ -172,8 +172,8 @@ struct SliceIteratorBase {
   enum class byte : unsigned char {};
 
  protected:
-  SliceIteratorBase(const Tensor& tensor, gsl::span<const int64_t> starts,
-                    gsl::span<const int64_t> extents, gsl::span<const int64_t> steps)
+  SliceIteratorBase(const Tensor& tensor, gsl::span<const ptrdiff_t> starts,
+                    gsl::span<const ptrdiff_t> extents, gsl::span<const ptrdiff_t> steps)
       : tensor_(tensor), extents_(extents), skips_(tensor_.Shape(), extents, steps), indices_(extents.size(), 0) {
     auto& dims = tensor_.Shape().GetDims();
     Init(dims, starts, steps);
@@ -183,15 +183,15 @@ struct SliceIteratorBase {
   // The explicit tensor_shape usually has inner most axis flattened. For example, given shape[1,4,4,2], if last axis
   // does not have padding or slice, then it will be flattened as [1,4,8] for better performance (One inner most copy instead of 4).
   // Also supports arbitrary positive and negative stepping along individual axes
-  SliceIteratorBase(const Tensor& tensor, const TensorShape& tensor_shape, gsl::span<const int64_t> starts,
-                    gsl::span<const int64_t> extents, gsl::span<const int64_t> steps)
+  SliceIteratorBase(const Tensor& tensor, const TensorShape& tensor_shape, gsl::span<const ptrdiff_t> starts,
+                    gsl::span<const ptrdiff_t> extents, gsl::span<const ptrdiff_t> steps)
       : tensor_(tensor), extents_(extents), skips_(tensor_shape, extents, steps), indices_(extents.size(), 0) {
     const auto& dims = tensor_shape.GetDims();
     Init(dims, starts, steps);
   }
 
   // Initialize initial skip and inner_extent.
-  void Init(const std::vector<int64_t>& dims, gsl::span<const int64_t> starts, gsl::span<const int64_t> steps) {
+  void Init(const std::vector<ptrdiff_t>& dims, gsl::span<const ptrdiff_t> starts, gsl::span<const ptrdiff_t> steps) {
     ORT_ENFORCE(dims.size() == starts.size() &&
                 dims.size() == extents_.size() &&
                 dims.size() >= steps.size());
@@ -306,18 +306,18 @@ struct SliceIteratorBase {
   const byte* input_{reinterpret_cast<const byte*>(tensor_.DataRaw())};
   const int64_t element_size_ = tensor_.DataType()->Size();
 
-  gsl::span<const int64_t> extents_;
+  gsl::span<const ptrdiff_t> extents_;
   size_t inner_counter_{}, inner_extent_;
   ptrdiff_t inner_step_;
   SliceSkips skips_;
-  std::vector<int64_t> indices_;  // There is no index for innermost axis since it's a special case
+  std::vector<ptrdiff_t> indices_;  // There is no index for innermost axis since it's a special case
 };
 
 // This provides easy sequential iteration over a subset of a tensor given a span of starts, extents & optionally steps
 template <typename T>
 struct SliceIterator : public SliceIteratorBase {
-  SliceIterator(const Tensor& tensor, gsl::span<const int64_t> starts,
-                gsl::span<const int64_t> extents, gsl::span<const int64_t> steps)
+  SliceIterator(const Tensor& tensor, gsl::span<const ptrdiff_t> starts,
+                gsl::span<const ptrdiff_t> extents, gsl::span<const ptrdiff_t> steps)
       : SliceIteratorBase(tensor, starts, extents, steps) {
   }
 
@@ -325,8 +325,8 @@ struct SliceIterator : public SliceIteratorBase {
   // The explicit tensor_shape usually has inner most axis flattened. For example, given shape[1,4,4,2], if last axis
   // does not have padding or slice, then it will be flattened as [1,4,8] for better performance (One inner most copy instead of 4).
   // Also supports arbitrary positive and negative stepping along individual axes
-  SliceIterator(const Tensor& tensor, const TensorShape& tensor_shape, gsl::span<const int64_t> starts,
-                gsl::span<const int64_t> extents, gsl::span<const int64_t> steps)
+  SliceIterator(const Tensor& tensor, const TensorShape& tensor_shape, gsl::span<const ptrdiff_t> starts,
+                gsl::span<const ptrdiff_t> extents, gsl::span<const ptrdiff_t> steps)
       : SliceIteratorBase(tensor, tensor_shape, starts, extents, steps) {
   }
 

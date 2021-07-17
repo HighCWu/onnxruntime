@@ -81,7 +81,7 @@ Tensor::Tensor(Tensor&& other) noexcept
       alloc_info_(other.alloc_info_),
       byte_offset_(other.byte_offset_) {
   other.dtype_ = DataTypeImpl::GetType<float>()->AsPrimitiveDataType();
-  other.shape_ = TensorShape(std::vector<int64_t>(1, 0));
+  other.shape_ = TensorShape(std::vector<std::ptrdiff_t>(1, 0));
   other.p_data_ = nullptr;
   other.buffer_deleter_ = nullptr;
   other.byte_offset_ = 0;
@@ -99,7 +99,7 @@ Tensor& Tensor::operator=(Tensor&& other) noexcept {
     buffer_deleter_ = other.buffer_deleter_;
 
     other.dtype_ = DataTypeImpl::GetType<float>()->AsPrimitiveDataType();
-    other.shape_ = TensorShape(std::vector<int64_t>(1, 0));
+    other.shape_ = TensorShape(std::vector<std::ptrdiff_t>(1, 0));
     other.p_data_ = nullptr;
     other.byte_offset_ = 0;
     other.buffer_deleter_ = nullptr;

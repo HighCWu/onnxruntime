@@ -9,14 +9,8 @@
 
 namespace onnxruntime {
 
-TensorShape::TensorShape(const int64_t* dimension_sizes, size_t dimension_count)
-    : std::vector<int64_t>(dimension_count) {
-  for (size_t i = 0; i < dimension_count; ++i) {
-    (*this)[i] = dimension_sizes[i];
-  }
-}
 
-TensorShape::TensorShape(const std::vector<int64_t>& dims, size_t start, size_t end) {
+TensorShape::TensorShape(const std::vector<ptrdiff_t>& dims, size_t start, size_t end) {
   assign(dims.begin() + start, dims.begin() + end);
 }
 
@@ -79,9 +73,9 @@ std::string TensorShape::ToString() const {
   return result;
 }
 
-int64_t TensorShape::SizeHelper(size_t start, size_t end) const {
+ptrdiff_t TensorShape::SizeHelper(size_t start, size_t end) const {
   // Must return 1 for an empty sequence
-  SafeInt<int64_t> size = 1;  // this is used to calculate the size, which is used for memory allocations, so validate no overflow
+  SafeInt<ptrdiff_t> size = 1;  // this is used to calculate the size, which is used for memory allocations, so validate no overflow
   for (size_t i = start; i < end; i++) {
     if ((*this)[i] < 0) return -1;
     size *= (*this)[i];

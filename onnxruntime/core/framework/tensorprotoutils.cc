@@ -482,19 +482,19 @@ common::Status GetSizeInBytesFromTensorProto(const ONNX_NAMESPACE::TensorProto& 
 
 TensorShape GetTensorShapeFromTensorShapeProto(const ONNX_NAMESPACE::TensorShapeProto& tensor_shape_proto) {
   const auto& dims = tensor_shape_proto.dim();
-  std::vector<int64_t> tensor_shape_vec(static_cast<size_t>(dims.size()));
+  std::vector<std::ptrdiff_t> tensor_shape_vec(static_cast<size_t>(dims.size()));
   for (int i = 0; i < dims.size(); ++i) {
-    tensor_shape_vec[i] = HasDimValue(dims[i]) ? dims[i].dim_value()
+    tensor_shape_vec[i] = HasDimValue(dims[i]) ? static_cast <std::ptrdiff_t>(dims[i].dim_value())
                                                : -1; /* symbolic dimensions are represented as -1 in onnxruntime*/
   }
   return TensorShape(std::move(tensor_shape_vec));
 }
 
-std::vector<int64_t> GetTensorShapeFromTensorProto(const ONNX_NAMESPACE::TensorProto& tensor_proto) {
+std::vector<std::ptrdiff_t> GetTensorShapeFromTensorProto(const ONNX_NAMESPACE::TensorProto& tensor_proto) {
   const auto& dims = tensor_proto.dims();
-  std::vector<int64_t> tensor_shape_vec(static_cast<size_t>(dims.size()));
+  std::vector<std::ptrdiff_t> tensor_shape_vec(static_cast<size_t>(dims.size()));
   for (int i = 0; i < dims.size(); ++i) {
-    tensor_shape_vec[i] = dims[i];
+    tensor_shape_vec[i] = static_cast <std::ptrdiff_t>(dims[i]);
   }
 
   return tensor_shape_vec;
@@ -601,7 +601,7 @@ Status TensorProtoToTensor(const Env& env, const ORTCHAR_T* model_path,
                            const ONNX_NAMESPACE::TensorProto& tensor_proto,
                            Tensor& tensor) {
   // Validate tensor compatibility
-  std::vector<int64_t> tensor_shape_vec = GetTensorShapeFromTensorProto(tensor_proto);
+  std::vector<std::ptrdiff_t> tensor_shape_vec = GetTensorShapeFromTensorProto(tensor_proto);
   if (tensor_shape_vec != tensor.Shape().GetDims()) {
     return Status(common::ONNXRUNTIME, common::INVALID_ARGUMENT, "TensorProtoToTensor() tensor shape mismatch!");
   }

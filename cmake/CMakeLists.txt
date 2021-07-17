@@ -818,7 +818,7 @@ endif()
 
 if(onnxruntime_USE_SUBMODULE)
     add_library(safeint_interface INTERFACE)
-    target_include_directories(safeint_interface INTERFACE ${REPO_ROOT}/cmake/external/SafeInt)
+    target_include_directories(safeint_interface INTERFACE ${REPO_ROOT}/cmake/external/SafeInt/safeint)
 else()
     FetchContent_Declare(
       safeint

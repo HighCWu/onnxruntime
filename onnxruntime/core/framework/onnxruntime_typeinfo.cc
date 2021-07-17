@@ -240,14 +240,14 @@ OrtStatus* OrtTypeInfo::FromTypeProto(const ONNX_NAMESPACE::TypeProto* input, Or
       OrtTensorTypeAndShapeInfo* info = nullptr;
       if (sp != nullptr) {
         const on::TensorShapeProto& s = *sp;
-        std::vector<int64_t> dims(s.dim_size());
+        std::vector<std::ptrdiff_t> dims(s.dim_size());
         std::vector<std::string> dim_params(s.dim_size());
         TensorShape shape_data(std::move(dims));
         for (int i = 0; i < s.dim_size(); ++i) {
           auto& t = s.dim(i);
           switch (t.value_case()) {
             case on::TensorShapeProto::Dimension::kDimValue:
-              shape_data[i] = t.dim_value();
+              shape_data[i] = static_cast<std::ptrdiff_t>(t.dim_value());
               break;
             case on::TensorShapeProto::Dimension::kDimParam:
               dim_params[i] = t.dim_param();

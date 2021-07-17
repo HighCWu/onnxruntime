@@ -139,8 +139,13 @@ Status PoolBase::Compute(OpKernelContext* context, MLAS_POOLING_KIND kind) const
   // Get access to the internal threadpool
   // Temporarily derive concurrency parameters without access to session state
   concurrency::ThreadPool* thread_pool = context->GetOperatorThreadPool();
-
+#if !defined(__amd64__) && !defined(_M_AMD64) && !defined(__aarch64__)
+  auto& dimsdata = X->Shape().GetDims();
+  std::vector<int64_t> dims(dimsdata.begin(),dimsdata.end());
+  MlasPool(kind, pooling_dims, dims.data(),
+#else
   MlasPool(kind, pooling_dims, X->Shape().GetDims().data(),
+#endif
            pool_attrs_.global_pooling ? nullptr : pool_attrs_.kernel_shape.data(),
            pool_attrs_.global_pooling ? nullptr : pads.data(),
            pool_attrs_.global_pooling ? nullptr : pool_attrs_.strides.data(), output_dims.data(),

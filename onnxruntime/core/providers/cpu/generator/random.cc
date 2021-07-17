@@ -312,7 +312,7 @@ Status Multinomial::Compute(OpKernelContext* ctx) const {
     return Status(ONNXRUNTIME, INVALID_ARGUMENT, "num_samples is < 1");
   }
 
-  Tensor* Y = ctx->Output(0, {batch_size, num_samples_});
+  Tensor* Y = ctx->Output(0, {batch_size, static_cast<std::ptrdiff_t>(num_samples_) });
 
   Status status = Status::OK();
   std::lock_guard<onnxruntime::OrtMutex> l(generator_mutex_);

@@ -101,7 +101,7 @@ class Crop final : public CropBase, public OpKernel {
       rightLimit = leftBorder + scale_[1];
     }
 
-    Tensor* Y = context->Output(0, TensorShape({N, C, bottomLimit - topBorder, rightLimit - leftBorder}));
+    Tensor* Y = context->Output(0, TensorShape({static_cast<std::ptrdiff_t>(N), static_cast<std::ptrdiff_t>(C), static_cast<std::ptrdiff_t>(bottomLimit - topBorder), static_cast<std::ptrdiff_t>(rightLimit - leftBorder)}));
     const T* Xdata = X->template Data<T>();
     T* Ydata = Y->template MutableData<T>();
 

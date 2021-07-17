@@ -28,7 +28,7 @@ Status ShapeToInitializer::Apply(Graph& graph, Node& node, RewriteRuleEffect& ru
 
   shape_initializer_proto.set_name(shape_out_def->Name());
 
-  TensorShape tensor_shape({gsl::narrow_cast<int64_t>(num_dimensions)});
+  TensorShape tensor_shape({gsl::narrow_cast<std::ptrdiff_t>(num_dimensions)});
   for (auto& dim : tensor_shape.GetDims()) {
     shape_initializer_proto.add_dims(dim);
   }
