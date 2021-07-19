@@ -28,7 +28,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install visualstudio2017buildtools
-        run: choco install visualstudio2017buildtools
+        run: choco install visualstudio2017community
           
       - name: Get specific version CMake, v3.18.4
         run: choco install cmake --version=3.18.4
@@ -45,4 +45,4 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          .\build.bat --config RelWithDebInfo --build_shared_lib --parallel
+          .\build.bat --config Release --build_wheel --use_dml --parallel
