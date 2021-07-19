@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ '3.6', '3.7', '3.8' ]
-    name: Python ${{ matrix.python-version }} sample
+    name: Build Ort DML Wheel for Python ${{ matrix.python-version }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -40,11 +40,12 @@ jobs:
         with:
           ref: "v1.8.1"
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          .\build.bat --config Release --build_wheel --use_dml --parallel
+      # Build Ort DML Wheel for Python
+      - name: Build Ort DML Wheel for Python ${{ matrix.python-version }}
+        run: .\build.bat --config Release --build_wheel --use_dml
+        
+      - name: Use the Upload Artifact GitHub Action to upload build files
+        uses: actions/upload-artifact@v2
+        with: 
+          name: onnxruntime-dml-py${{ matrix.python-version }}-v1.8.1
+          path: build/Windows/Release/Release/dist
