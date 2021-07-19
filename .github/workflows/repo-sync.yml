@@ -1,6 +1,6 @@
 # File: .github/workflows/repo-sync.yml
 
-name: Repo-Sync
+name: Repo Sync
 
 on:
   schedule:
