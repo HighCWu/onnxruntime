@@ -44,7 +44,7 @@ jobs:
       - name: Build Ort DML Wheel for Python ${{ matrix.python-version }}
         run: .\build.bat --cmake_generator "Visual Studio 16 2019" --config Release --build_wheel --use_dml --parallel
         
-      - name: Use the Upload Artifact GitHub Action to upload build files
+      - name: Use the Upload Artifact GitHub Action to Upload Build Files
         uses: actions/upload-artifact@v2
         with: 
           name: onnxruntime-dml-py${{ matrix.python-version }}-v1.8.1
