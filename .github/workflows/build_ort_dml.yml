@@ -27,10 +27,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install VS 2017
+      - name: Install VS 2019
         run: |
-          choco install visualstudio2017community
-          choco install visualstudio2017-workload-nativedesktop
+          choco install visualstudio2019community
+          choco install visualstudio2019-workload-nativedesktop
           
       - name: Get specific version CMake, v3.18.4
         run: choco install cmake --version=3.18.4
@@ -42,7 +42,7 @@ jobs:
 
       # Build Ort DML Wheel for Python
       - name: Build Ort DML Wheel for Python ${{ matrix.python-version }}
-        run: .\build.bat --config Release --build_wheel --use_dml
+        run: .\build.bat --cmake_generator "Visual Studio 16 2019" --config Release --build_wheel --use_dml --parallel
         
       - name: Use the Upload Artifact GitHub Action to upload build files
         uses: actions/upload-artifact@v2
