@@ -17,19 +17,17 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
+      - name: Install visualstudio2017buildtools
+        run: choco install visualstudio2017buildtools
+          
+      - name: Get specific version CMake, v3.18.4
+        run: choco install cmake --version=3.18.4
+        
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with:
           ref: "v1.8.1"
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.2
-        with:
-          vs-version: '15.0'
-          
-      - name: Get specific version CMake, v3.20.1
-        uses: lukka/get-cmake@v3.20.1
-        
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo Hello, world!
