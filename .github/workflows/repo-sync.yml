@@ -17,7 +17,7 @@ jobs:
     - name: repo-sync
       uses: repo-sync/github-sync@v2
       with:
-        source_repo: ""
+        source_repo: "https://github.com/microsoft/onnxruntime"
         source_branch: ""
         destination_branch: ""
         github_token: ${{ secrets.PAT }}
