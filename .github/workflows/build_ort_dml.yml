@@ -16,7 +16,7 @@ jobs:
     
     strategy:
       matrix:
-        python-version: [ '3.6', '3.7', '3.8' ]
+        python-version: [ '3.6', '3.7', '3.8', '3.9' ]
     name: Build Ort DML Wheel for Python ${{ matrix.python-version }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -42,7 +42,7 @@ jobs:
 
       # Build Ort DML Wheel for Python
       - name: Build Ort DML Wheel for Python ${{ matrix.python-version }}
-        run: .\build.bat --cmake_generator "Visual Studio 16 2019" --config Release --build_wheel --use_dml --parallel
+        run: .\build.bat --cmake_generator "Visual Studio 16 2019" --config Release --build_wheel --use_dml --parallel --skip_tests
         
       - name: Use the Upload Artifact GitHub Action to Upload Build Files
         uses: actions/upload-artifact@v2
