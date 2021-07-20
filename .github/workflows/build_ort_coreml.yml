@@ -30,6 +30,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+        
+      - name: Install NumPy
+        run: pip install numpy -y
 
       - name: Set up X-Code
         uses: maxim-lobanov/setup-xcode@v1
