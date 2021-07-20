@@ -32,7 +32,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
         
       - name: Install NumPy
-        run: pip install numpy -y
+        run: pip install numpy
 
       - name: Set up X-Code
         uses: maxim-lobanov/setup-xcode@v1
