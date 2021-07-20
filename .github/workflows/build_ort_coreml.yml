@@ -1,0 +1,55 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI Build Ort CoreML
+
+# Controls when the workflow will run
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ 'macos-10.15', 'macos-11']
+        python-version: [ '3.6', '3.7', '3.8', '3.9' ]
+    name: Build Ort CoreML Wheel for Python ${{ matrix.python-version }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up X-Code
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install CoreUtils and Ninja
+        run: brew install coreutils ninja
+
+      - name: Get specific version CMake, v3.18.4
+        run: brew install cmake@3.18.4
+        
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          ref: "v1.8.1"
+
+      # Build Ort CoreML Wheel for Python
+      - name: Build Ort CoreML Wheel for Python ${{ matrix.python-version }}
+        run: sh ./build.sh --config Release --build_wheel --use_coreml --parallel --skip_tests
+        
+      - name: Use the Upload Artifact GitHub Action to Upload Build Files
+        uses: actions/upload-artifact@v2
+        with: 
+          name: onnxruntime-coreml-${{ matrix.os }}-py${{ matrix.python-version }}-v1.8.1
+          path: build/MacOS/Release/Release/dist
