@@ -39,8 +39,8 @@ jobs:
       - name: Install CoreUtils and Ninja
         run: brew install coreutils ninja
 
-      - name: Get specific version CMake, v3.21.0
-        run: brew install cmake@3.21.0
+      - name: Get specific version CMake, v3.18.4
+        uses: lukka/get-cmake@v3.18.4
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
